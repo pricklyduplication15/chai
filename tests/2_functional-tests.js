@@ -39,8 +39,14 @@ suite("Functional Tests", function () {
         .request(server)
         .keepOpen()
         .put("/travellers")
-        .send({ surname: "Colombo" });
-      done();
+        .send({ surname: "Colombo" })
+        .end(function (err, res) {
+          assert.equal(res.status, 200);
+          assert.equal(res.type, "application/json");
+          assert.equal(res.body.name, "Cristoforo");
+          assert.equal(res.body.surname, "Colombo");
+          done();
+        });
     });
     // #4
     test('Send {surname: "da Verrazzano"}', function (done) {
@@ -53,10 +59,14 @@ suite("Functional Tests", function () {
 });
 
 const Browser = require("zombie");
+Browser.localhost("127.0.0.1", 3000);
 
 suite("Functional Tests with Zombie.js", function () {
+  const browser = new Browser();
   this.timeout(5000);
-
+  suiteSetup(function (done) {
+    return browser.visit("/", done);
+  });
   suite("Headless browser", function () {
     test('should have a working "site" property', function () {
       assert.isNotNull(browser.site);
@@ -66,15 +76,26 @@ suite("Functional Tests with Zombie.js", function () {
   suite('"Famous Italian Explorers" form', function () {
     // #5
     test('Submit the surname "Colombo" in the HTML form', function (done) {
-      assert.fail();
-
-      done();
+      browser.fill("surname", "Colombo").pressButton("submit", function () {
+        assert.include(
+          browser.text("body"),
+          "Colombo",
+          "Form submission should include 'Colombo' in the body text"
+        );
+        done();
+      });
     });
+
     // #6
     test('Submit the surname "Vespucci" in the HTML form', function (done) {
-      assert.fail();
-
-      done();
+      browser.fill("surname", "Vespucci").pressButton("submit", function () {
+        assert.include(
+          browser.text("body"),
+          "Vespucci",
+          "Form submission should include 'Vespucci' in the body text"
+        );
+        done();
+      });
     });
   });
 });

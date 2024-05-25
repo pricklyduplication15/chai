@@ -69,8 +69,7 @@ suite("Functional Tests", function () {
 });
 
 const Browser = require("zombie");
-// Set the correct site with protocol and host
-Browser.site = "127.0.0.1:3000";
+Browser.site = "http://127.0.0.1:3000";
 
 suite("Functional Tests with Zombie.js", function () {
   const browser = new Browser();
